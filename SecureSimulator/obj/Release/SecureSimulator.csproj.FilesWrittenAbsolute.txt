@@ -1,0 +1,3 @@
+/home/ostarov/bgp_sim/SecureSimulator/obj/Release/.NETFramework,Version=v4.0.AssemblyAttribute.cs
+/home/ostarov/bgp_sim/SecureSimulator/bin/Release/SecureSimulator.dll
+/home/ostarov/bgp_sim/SecureSimulator/obj/Release/SecureSimulator.dll

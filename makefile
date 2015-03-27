@@ -1,5 +1,5 @@
 all:
-	xbuild /p:Configuration=Release TestingSolution.sln
+	xbuild /p:Configuration=Release testingsolution.sln
 clean:
-	xbuild /p:Configuration=Release TestingSolution.sln /t:Clean
+	xbuild /p:Configuration=Release testingsolution.sln /t:Clean
 
