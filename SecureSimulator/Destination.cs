@@ -648,6 +648,8 @@ namespace SecureSimulator
                         }
                         count = count + 1;
                         allPaths.Add(path);
+                        
+                        /*
                         if (allPaths.Count % 1500 == 0)
                         {
                             for (int j = 0; j < allPaths.Count; j++)
@@ -656,6 +658,8 @@ namespace SecureSimulator
                             }
                             allPaths.Clear();
                         }
+                        */
+
                         //if (count % 1000 == 0)
                         //{
                         //    Console.Write(count + " Paths found.\n");

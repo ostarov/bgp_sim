@@ -5,6 +5,10 @@ using System.Text;
 using SecureSimulator;
 using System.IO;
 
+using System.Net;
+using System.Net.Sockets;
+
+
 /*
 ostarov@compute:~/bgp_sim2/bgp_sim$ mono TestingApplication/bin/Release/TestingApplication.exe Cyclops_caida_new.txt 174 32490 -q 32490 174 15169 32490 
 Initialized and added 174
@@ -29,21 +33,119 @@ namespace TestingApplication
 {
     class Program
     {
+        // Incoming data from the client.
+        public static string data = null;
+
+        public static void StartListening() {
+            // Data buffer for incoming data.
+            byte[] bytes = new Byte[200000];
+
+            // Establish the local endpoint for the socket.
+            // Dns.GetHostName returns the name of the 
+            // host running the application.
+            //IPostEntry ipHostInfo = Dns.Resolve(Dns.GetHostName());
+            //IPAddress ipAddress = ipHostInfo.AddressList[0];
+            IPEndPoint localEndPoint = new IPEndPoint(Dns.Resolve("localhost").AddressList[0], 11000);
+
+            // Create a TCP/IP socket.
+            Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+            // Bind the socket to the local endpoint and 
+            // listen for incoming connections.
+            try {
+                listener.Bind(localEndPoint);
+                listener.Listen(10);
+
+                // Start listening for connections.
+                while (true) {
+                    Console.WriteLine("Waiting for a connection...");
+                    // Program is suspended while waiting for an incoming connection.
+                    Socket handler = listener.Accept();
+                    data = null;
+
+                    // An incoming connection needs to be processed.
+                    while (true) {
+                        bytes = new byte[20000];
+                        int bytesRec = handler.Receive(bytes);
+                        data += Encoding.ASCII.GetString(bytes,0,bytesRec);
+                        if (data.IndexOf("<EOF>") > -1) {
+                            break;
+                        }
+                    }
+
+                    // Show the data on the console.
+                    Console.WriteLine("Text received : {0}", data);
+
+                    string[] args = data.Split(' ');
+
+                    int i;
+                    for (i = 0; i < args.Length-1; ++i) {
+                        if ("-q" == args[i]) break;
+                            if (dests.Contains(args[i])) continue;
+                            dests.Add(args[i]);
+
+                            Destination newD = new Destination();
+                            if (initDestination(ref g, ref newD, args[i]))
+                            {
+                                d.Add(newD);
+                                Console.WriteLine("Initialized and added " + newD.destination);
+                            }   
+                        }   
+
+                    Console.WriteLine("DESTS " + dests.Count);
+
+                    // Approaching queries
+                   
+                    string res = "";
+                    for (i = i+1; i < args.Length-1; i += 2) { 
+                        int l = getPath(ref d, args[i], args[i+1]);
+                        res += getAllPathsOfLength(ref d, l, args[i], args[i+1]);
+                    }
+
+                    // Echo the data back to the client.
+                    byte[] msg = Encoding.ASCII.GetBytes(res);
+
+                    handler.Send(msg);
+                    handler.Shutdown(SocketShutdown.Both);
+                    handler.Close();
+                }
+            
+            } catch (Exception e) {
+                Console.WriteLine(e.ToString());
+            }
+
+            Console.WriteLine("\nPress ENTER to continue...");
+            Console.Read();
+        
+        }
+
+        private static NetworkGraph g = new NetworkGraph();
+        private static HashSet<string> dests = new HashSet<string>();
+        private static List<Destination> d = new List<Destination>();
+
         static void Main(string[] args)
         {
-		// Checking arguments
-		if (args == null || args.Length < 3) {
-		    Console.WriteLine("USAGE: mono TestingApplication.exe <input file> <dest1> ... <dstN> -q <src1> <dst1> ... <srcN> <dstN>");
-		    return;
+		if (args.Length == 0) {
+                    Console.WriteLine("USAGE:");
+		    Console.WriteLine("mono TestingApplication.exe -bulk <input file> <dest1> ... <dstN> -q <src1> <dst1> ... <srcN> <dstN>");
+		    Console.WriteLine("mono TestingApplication.exe -server <input file>");
+                    Console.WriteLine("mono TestingApplication.exe -cmd");
+                    return;
 		}
 
+                if ("-cmd" == args[0]) {
+                    TestingClass test = new TestingClass();
+                    test.CLI(false); 
+                    return;  
+                }
+
 		// Graph initialization
-        	NetworkGraph g = new NetworkGraph();
+        	//NetworkGraph g = new NetworkGraph();
 		
 		// E.g., input Cyclops_caida.txt
-		if (File.Exists(args[0]))
+		if (File.Exists(args[1]))
                 {
-                    InputFileReader iFR = new InputFileReader(args[0], g);
+                    InputFileReader iFR = new InputFileReader(args[1], g);
                     iFR.ProcessFile();
                     Int32 p2pEdges = 0;
                     Int32 c2pEdges = 0;
@@ -53,44 +155,50 @@ namespace TestingApplication
                         c2pEdges += ASNode.GetNeighborTypeCount(RelationshipType.CustomerOf);
                         c2pEdges += ASNode.GetNeighborTypeCount(RelationshipType.ProviderTo);
                     }
-		    /*
-                    Console.WriteLine("Read in the graph, it has " + g.NodeCount + " nodes and " + g.EdgeCount + " edges.");
-                    Console.WriteLine("P2P: " + p2pEdges + " C2P: " + c2pEdges);
-                    */
+		    
+                    //Console.WriteLine("Read in the graph, it has " + g.NodeCount + " nodes and " + g.EdgeCount + " edges.");
+                    //Console.WriteLine("P2P: " + p2pEdges + " C2P: " + c2pEdges);
 		}
                 else
                 {
-                    Console.WriteLine("The file " + args[0] +  " does not exist.");
+                    Console.WriteLine("The file " + args[1] +  " does not exist.");
                     return;
                 }
 		
-		// Setting destinations		
-		List<Destination> d = new List<Destination>();
-		Destination newD = new Destination();
-		
-		int i = 1;
-		for (i = 1; i < args.Length; ++i) {
-		    if ("-q" == args[i]) break;
-		    if (initDestination(ref g, ref newD, args[i]))
-		    {
-		        d.Add(newD);
-    		        
-			Console.WriteLine("Initialized and added " + newD.destination);
-    		        
+                if ("-bulk" == args[0]) {
+		    // Setting destinations		
+		    //HashSet<string> dests = new HashSet<string>();
+                    //List<Destination> d = new List<Destination>();
+
+		    int i = 1;
+		    for (i = 1; i < args.Length; ++i) {
+		        if ("-q" == args[i]) break;
+                        if (dests.Contains(args[i])) continue;
+                        dests.Add(args[i]);
+		        
+                        Destination newD = new Destination();
+                        if (initDestination(ref g, ref newD, args[i]))
+		        {
+		            d.Add(newD);
+			    Console.WriteLine("Initialized and added " + newD.destination);
+		        }
 		    }
-		}
+
+                    Console.WriteLine("DESTS " + dests.Count);
 		
-		// Approaching queries
-		for (i = i+1; i < args.Length; i += 2) {
+		    // Approaching queries
+		    for (i = i+1; i < args.Length; i += 2) {
 		    
-		    int l = getPath(ref d, args[i], args[i+1]);
-		    getAllPathsOfLength(ref d, l, args[i], args[i+1]);
-		}	
-		
-		/*
-		TestingClass test = new TestingClass();
-		test.CLI(false);
-		*/	 
+		        int l = getPath(ref d, args[i], args[i+1]);
+		        getAllPathsOfLength(ref d, l, args[i], args[i+1]);
+		    }
+
+                    return;         
+                }
+
+                if ("-server" == args[0]) {
+                    StartListening();
+                }
         }
 
 	private static bool initDestination(ref NetworkGraph g, ref Destination d, string dest)
@@ -163,8 +271,11 @@ namespace TestingApplication
 	    return 0;
         }
 
-	private static bool getAllPathsOfLength(ref List<Destination> ds, int length, string src, string dst)
+	private static string getAllPathsOfLength(ref List<Destination> ds, int length, string src, string dst)
 	{
+                string res = "";
+
+                res = "ASes from " + src + " to " + dst + ", length: " + length + "\n";
 		Console.WriteLine("ASes from " + src + " to " + dst + ", length: " + length);
 
 		int dstNum;
@@ -174,10 +285,8 @@ namespace TestingApplication
                 	/*
                 	Console.WriteLine("Invalid ASN or destination.");
                 	*/
-                	return false;
+                	return res;
             	}
-
-		//Console.WriteLine("ASes from " + ASN + " to " + dstNum);
 
 		foreach (Destination d in ds)
 		{
@@ -207,18 +316,19 @@ namespace TestingApplication
 						}
 					}
 					allPaths.Clear();
-
 					
 					//Console.WriteLine(counter + " Paths from " + ASN + " to " + dstNum);
 					
 					string[] arr = pathSet.ToArray();
 					
 					if (arr.Length > 0) {
+                                                res += string.Join("\n", arr) + "\n";
 						Console.WriteLine(string.Join("\n", arr));
-						Console.WriteLine("-");
+						res += "-\n";
+                                                Console.WriteLine("-");
 					}
 					
-					return true;
+					return res;
 				}
 				else
 				{
@@ -227,10 +337,11 @@ namespace TestingApplication
 			}
 		}
 
+                res += "-\n";
 		Console.WriteLine("-");
 
 		//Console.WriteLine("could not find destination");
-		return false;
+		return res;
 	}
 
 	private static void pathToSet(ref HashSet<string> res, List<UInt32> path)

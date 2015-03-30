@@ -8,3 +8,12 @@
 /home/ostarov/bgp_sim/TestingApplication/bin/Release/SecureSimulator.dll
 /home/ostarov/bgp_sim/TestingApplication/bin/Release/Microsoft.WindowsAzure.StorageClient.dll
 /home/ostarov/bgp_sim/TestingApplication/bin/Release/Microsoft.WindowsAzure.StorageClient.xml
+/home/ostarov/torintercept/code/as-path-prediction/bgp_sim/TestingApplication/obj/x86/Release/.NETFramework,Version=v4.0.AssemblyAttribute.cs
+/home/ostarov/torintercept/code/as-path-prediction/bgp_sim/TestingApplication/bin/Release/TestingApplication.exe.mdb
+/home/ostarov/torintercept/code/as-path-prediction/bgp_sim/TestingApplication/bin/Release/TestingApplication.exe
+/home/ostarov/torintercept/code/as-path-prediction/bgp_sim/TestingApplication/obj/x86/Release/TestingApplication.exe
+/home/ostarov/torintercept/code/as-path-prediction/bgp_sim/TestingApplication/obj/x86/Release/TestingApplication.exe.mdb
+/home/ostarov/torintercept/code/as-path-prediction/bgp_sim/TestingApplication/bin/Release/CloudLibrary.dll
+/home/ostarov/torintercept/code/as-path-prediction/bgp_sim/TestingApplication/bin/Release/SecureSimulator.dll
+/home/ostarov/torintercept/code/as-path-prediction/bgp_sim/TestingApplication/bin/Release/Microsoft.WindowsAzure.StorageClient.dll
+/home/ostarov/torintercept/code/as-path-prediction/bgp_sim/TestingApplication/bin/Release/Microsoft.WindowsAzure.StorageClient.xml
