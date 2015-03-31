@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +11,7 @@ using System.Net.Sockets;
 
 
 /*
-ostarov@compute:~/bgp_sim2/bgp_sim$ mono TestingApplication/bin/Release/TestingApplication.exe Cyclops_caida_new.txt 174 32490 -q 32490 174 15169 32490 
+ostarov@compute:~/bgp_sim2/bgp_sim$ mono TestingApplication/bin/Release/TestingApplication.exe -bulk Cyclops_caida_new.txt 174 32490 -q 32490 174 15169 32490 
 Initialized and added 174
 Initialized and added 32490
 ASes from 32490 to 174, length: 3
@@ -38,7 +39,7 @@ namespace TestingApplication
 
         public static void StartListening() {
             // Data buffer for incoming data.
-            byte[] bytes = new Byte[200000];
+            byte[] bytes = new Byte[1000000];
 
             // Establish the local endpoint for the socket.
             // Dns.GetHostName returns the name of the 
@@ -65,7 +66,7 @@ namespace TestingApplication
 
                     // An incoming connection needs to be processed.
                     while (true) {
-                        bytes = new byte[20000];
+                        bytes = new byte[1000000];
                         int bytesRec = handler.Receive(bytes);
                         data += Encoding.ASCII.GetString(bytes,0,bytesRec);
                         if (data.IndexOf("<EOF>") > -1) {
@@ -87,7 +88,7 @@ namespace TestingApplication
                             Destination newD = new Destination();
                             if (initDestination(ref g, ref newD, args[i]))
                             {
-                                d.Add(newD);
+                                d.Add(args[i], newD);
                                 Console.WriteLine("Initialized and added " + newD.destination);
                             }   
                         }   
@@ -101,6 +102,8 @@ namespace TestingApplication
                         int l = getPath(ref d, args[i], args[i+1]);
                         res += getAllPathsOfLength(ref d, l, args[i], args[i+1]);
                     }
+
+                    res += "<EOF>";
 
                     // Echo the data back to the client.
                     byte[] msg = Encoding.ASCII.GetBytes(res);
@@ -121,7 +124,7 @@ namespace TestingApplication
 
         private static NetworkGraph g = new NetworkGraph();
         private static HashSet<string> dests = new HashSet<string>();
-        private static List<Destination> d = new List<Destination>();
+        private static Dictionary<string, Destination> d = new Dictionary<string, Destination>();
 
         static void Main(string[] args)
         {
@@ -179,7 +182,7 @@ namespace TestingApplication
                         Destination newD = new Destination();
                         if (initDestination(ref g, ref newD, args[i]))
 		        {
-		            d.Add(newD);
+		            d.Add(args[i], newD);
 			    Console.WriteLine("Initialized and added " + newD.destination);
 		        }
 		    }
@@ -235,7 +238,7 @@ namespace TestingApplication
 	    return true;
         }
 
-	private static int getPath(ref List<Destination> ds, string src, string dst)
+	private static int getPath(ref Dictionary<string, Destination> ds, string src, string dst)
         {
             int dstNum;
             UInt32 ASN;
@@ -247,12 +250,13 @@ namespace TestingApplication
 		return 0;
             }
 
-            foreach (Destination d in ds)
+            if (ds.ContainsKey(dst))
             {
-                if (d.destination == dstNum)
+                //if (d.destination == dstNum)
                 {
                     //Console.WriteLine("> Path from " + ASN + " to " + d.destination + " is " + d.GetPath(ASN));
                     
+                    Destination d = ds[dst];
 		    string tmp = d.GetPath(ASN);
 
 		    tmp = tmp.Replace("-", "");
@@ -271,7 +275,7 @@ namespace TestingApplication
 	    return 0;
         }
 
-	private static string getAllPathsOfLength(ref List<Destination> ds, int length, string src, string dst)
+	private static string getAllPathsOfLength(ref Dictionary<string, Destination> ds, int length, string src, string dst)
 	{
                 string res = "";
 
@@ -288,10 +292,11 @@ namespace TestingApplication
                 	return res;
             	}
 
-		foreach (Destination d in ds)
+		if (ds.ContainsKey(dst))
 		{
-			if (d.destination == dstNum)
+			//if (d.destination == dstNum)
 			{
+                                Destination d = ds[dst];
 				if (d.BestNew[ASN] != null)
 				{
 					HashSet<string> pathSet = new HashSet<string>(); 
