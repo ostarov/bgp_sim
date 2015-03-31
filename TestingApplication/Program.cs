@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections;
+using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -97,16 +97,31 @@ namespace TestingApplication
 
                     // Approaching queries
                    
-                    string res = "";
+                    StringBuilder res = new StringBuilder(1000000);
+    
+                    int k = 0;
                     for (i = i+1; i < args.Length-1; i += 2) { 
+                        Console.WriteLine(k);
+                        string key = args[i] + "-" + args[i+1];
+                        if (cache.ContainsKey(key)) {
+                            res.Append(cache[key]);
+                            k++;
+                            continue;
+                        }
+                        
                         int l = getPath(ref d, args[i], args[i+1]);
-                        res += getAllPathsOfLength(ref d, l, args[i], args[i+1]);
+                        StringBuilder tmp = new StringBuilder();
+                        getAllPathsOfLength(ref d, l, args[i], args[i+1], ref tmp);
+                        
+                        res.Append(tmp);
+                        cache.Add(key, tmp.ToString());
+                        k++;
                     }
 
-                    res += "<EOF>";
+                    res.Append("<EOF>");
 
                     // Echo the data back to the client.
-                    byte[] msg = Encoding.ASCII.GetBytes(res);
+                    byte[] msg = Encoding.ASCII.GetBytes(res.ToString());
 
                     handler.Send(msg);
                     handler.Shutdown(SocketShutdown.Both);
@@ -125,6 +140,8 @@ namespace TestingApplication
         private static NetworkGraph g = new NetworkGraph();
         private static HashSet<string> dests = new HashSet<string>();
         private static Dictionary<string, Destination> d = new Dictionary<string, Destination>();
+        // Second level of caching
+        private static Dictionary<string, string> cache = new Dictionary<string, string>();
 
         static void Main(string[] args)
         {
@@ -191,9 +208,10 @@ namespace TestingApplication
 		
 		    // Approaching queries
 		    for (i = i+1; i < args.Length; i += 2) {
-		    
+		       
+                        StringBuilder res = new StringBuilder(); 
 		        int l = getPath(ref d, args[i], args[i+1]);
-		        getAllPathsOfLength(ref d, l, args[i], args[i+1]);
+		        getAllPathsOfLength(ref d, l, args[i], args[i+1], ref res);
 		    }
 
                     return;         
@@ -275,11 +293,9 @@ namespace TestingApplication
 	    return 0;
         }
 
-	private static string getAllPathsOfLength(ref Dictionary<string, Destination> ds, int length, string src, string dst)
+	private static void getAllPathsOfLength(ref Dictionary<string, Destination> ds, int length, string src, string dst, ref StringBuilder res)
 	{
-                string res = "";
-
-                res = "ASes from " + src + " to " + dst + ", length: " + length + "\n";
+                res.Append("ASes from " + src + " to " + dst + ", length: " + length + "\n");
 		Console.WriteLine("ASes from " + src + " to " + dst + ", length: " + length);
 
 		int dstNum;
@@ -289,7 +305,7 @@ namespace TestingApplication
                 	/*
                 	Console.WriteLine("Invalid ASN or destination.");
                 	*/
-                	return res;
+                	return;
             	}
 
 		if (ds.ContainsKey(dst))
@@ -327,13 +343,13 @@ namespace TestingApplication
 					string[] arr = pathSet.ToArray();
 					
 					if (arr.Length > 0) {
-                                                res += string.Join("\n", arr) + "\n";
+                                                res.Append(string.Join("\n", arr) + "\n");
 						Console.WriteLine(string.Join("\n", arr));
-						res += "-\n";
+						res.Append("-\n");
                                                 Console.WriteLine("-");
-					}
-					
-					return res;
+					        return;
+                                        }
+                                        
 				}
 				else
 				{
@@ -342,11 +358,10 @@ namespace TestingApplication
 			}
 		}
 
-                res += "-\n";
+                res.Append("-\n");
 		Console.WriteLine("-");
 
 		//Console.WriteLine("could not find destination");
-		return res;
 	}
 
 	private static void pathToSet(ref HashSet<string> res, List<UInt32> path)
