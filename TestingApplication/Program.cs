@@ -298,6 +298,12 @@ namespace TestingApplication
                 res.Append("ASes from " + src + " to " + dst + ", length: " + length + "\n");
 		Console.WriteLine("ASes from " + src + " to " + dst + ", length: " + length);
 
+                if (length == 0) {
+                    res.Append("-\n");
+                    Console.WriteLine("-");
+                    return;
+                }
+
 		int dstNum;
         	UInt32 ASN;
             	if (!UInt32.TryParse(src, out ASN) || !int.TryParse(dst, out dstNum))
@@ -305,7 +311,9 @@ namespace TestingApplication
                 	/*
                 	Console.WriteLine("Invalid ASN or destination.");
                 	*/
-                	return;
+                        res.Append("-\n");
+                        Console.WriteLine("-");
+                        return;
             	}
 
 		if (ds.ContainsKey(dst))
@@ -348,6 +356,11 @@ namespace TestingApplication
 						res.Append("-\n");
                                                 Console.WriteLine("-");
 					        return;
+                                        }
+                                        else {
+                                            res.Append("-\n");
+                                            Console.WriteLine("-");
+                                            return;
                                         }
                                         
 				}
