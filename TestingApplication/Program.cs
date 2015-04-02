@@ -122,8 +122,12 @@ namespace TestingApplication
 
                     // Echo the data back to the client.
                     byte[] msg = Encoding.ASCII.GetBytes(res.ToString());
+                    
+                    //Console.WriteLine(res.ToString());
 
-                    handler.Send(msg);
+                    int sent = handler.Send(msg);
+                    Console.WriteLine("Sent: " + sent);
+
                     handler.Shutdown(SocketShutdown.Both);
                     handler.Close();
                 }
