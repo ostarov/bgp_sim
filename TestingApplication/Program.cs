@@ -100,7 +100,7 @@ namespace TestingApplication
                     StringBuilder res = new StringBuilder(1000000);
     
                     int k = 0;
-                    for (i = i+1; i < args.Length-1; i += 2) { 
+                    for (i = i+1; i < args.Length-2; i += 2) { 
                         Console.WriteLine(k);
                         string key = args[i] + "-" + args[i+1];
                         if (cache.ContainsKey(key)) {
