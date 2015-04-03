@@ -37,7 +37,13 @@ namespace TestingApplication
         // Incoming data from the client.
         public static string data = null;
 
-        public static void StartListening() {
+        public static void StartListening(String p) {
+            
+            int port;
+            if (!Int32.TryParse(p, out port)) {
+               port = 11000;
+            } 
+
             // Data buffer for incoming data.
             byte[] bytes = new Byte[1000000];
 
@@ -46,7 +52,7 @@ namespace TestingApplication
             // host running the application.
             //IPostEntry ipHostInfo = Dns.Resolve(Dns.GetHostName());
             //IPAddress ipAddress = ipHostInfo.AddressList[0];
-            IPEndPoint localEndPoint = new IPEndPoint(Dns.Resolve("localhost").AddressList[0], 11000);
+            IPEndPoint localEndPoint = new IPEndPoint(Dns.Resolve("localhost").AddressList[0], port);
 
             // Create a TCP/IP socket.
             Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -59,7 +65,7 @@ namespace TestingApplication
 
                 // Start listening for connections.
                 while (true) {
-                    Console.WriteLine("Waiting for a connection...");
+                    Console.WriteLine("Waiting for a connection on {0} ...", port);
                     // Program is suspended while waiting for an incoming connection.
                     Socket handler = listener.Accept();
                     data = null;
@@ -221,8 +227,11 @@ namespace TestingApplication
                     return;         
                 }
 
-                if ("-server" == args[0]) {
-                    StartListening();
+                if (args[0].StartsWith("-server")) {
+
+                    String port = args[0].Replace("-server", "");
+
+                    StartListening(port);
                 }
         }
 
