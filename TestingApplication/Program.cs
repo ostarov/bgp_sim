@@ -115,10 +115,11 @@ namespace TestingApplication
                             continue;
                         }
                         
-                        int l = getPath(ref d, args[i], args[i+1]);
+                        //int l = getPath(ref d, args[i], args[i+1]);
                         StringBuilder tmp = new StringBuilder();
-                        getAllPathsOfLength(ref d, l, args[i], args[i+1], ref tmp);
-                        
+                        //getAllPathsOfLength(ref d, l, args[i], args[i+1], ref tmp);
+                        getPath2(ref d, args[i], args[i+1], ref tmp);
+
                         res.Append(tmp);
                         cache.Add(key, tmp.ToString());
                         k++;
@@ -219,10 +220,29 @@ namespace TestingApplication
 		    // Approaching queries
 		    for (i = i+1; i < args.Length; i += 2) {
 		       
-                        StringBuilder res = new StringBuilder(); 
-		        int l = getPath(ref d, args[i], args[i+1]);
-		        getAllPathsOfLength(ref d, l, args[i], args[i+1], ref res);
-		    }
+                        //StringBuilder res = new StringBuilder(); 
+		        //int l = getPath(ref d, args[i], args[i+1]);
+		        //getAllPathsOfLength(ref d, l, args[i], args[i+1], ref res);
+		        
+                        List<List<UInt32>> allPaths = new List<List<UInt32>>();
+
+                        if (d.ContainsKey(args[i+1])) {
+                            UInt32 src;
+                            UInt32 dst;
+                            if (UInt32.TryParse(args[i], out src) && UInt32.TryParse(args[i+1], out dst)) {
+                                Console.WriteLine("ASes from " + src + " to " + dst); 
+                                d[args[i+1]].GetAllBestPaths(src, dst, ref allPaths);  
+                            }
+                        }
+
+                        foreach (List<UInt32> path in allPaths) {
+                            for (int j = 0; j < path.Count; ++j) {
+                                Console.WriteLine(path[j]);
+                            }
+                            Console.WriteLine("-");
+                        }
+                        
+                    }
 
                     return;         
                 }
@@ -304,6 +324,32 @@ namespace TestingApplication
             Console.WriteLine("WARNING: Could not find destination!");
             */
 	    return 0;
+        }
+
+        private static void getPath2(ref Dictionary<string, Destination> ds, string src, string dst, ref StringBuilder res)
+        {
+            int dstNum;
+            UInt32 ASN;
+
+            res.Append("ASes from " + src + " to " + dst);
+             Console.WriteLine("ASes from " + src + " to " + dst);
+
+            if (!UInt32.TryParse(src, out ASN) || !int.TryParse(dst, out dstNum)) return;
+
+            if (ds.ContainsKey(dst))
+            {
+                Destination d = ds[dst];
+                string tmp = d.GetPath(ASN);
+                tmp = tmp.Replace("-", "");
+                tmp = tmp.Replace("<", "");
+                tmp = tmp.Replace(">", "");
+                tmp = tmp.Replace("  ", " ");
+                tmp = tmp.Replace(" ", "\n");
+                res.Append(tmp);
+            }
+
+            res.Append("-\n");
+            return;
         }
 
 	private static void getAllPathsOfLength(ref Dictionary<string, Destination> ds, int length, string src, string dst, ref StringBuilder res)

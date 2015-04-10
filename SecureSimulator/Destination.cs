@@ -591,6 +591,39 @@ namespace SecureSimulator
 
         }
 
+        public bool GetAllBestPaths(UInt32 src, UInt32 dst, ref List<List<UInt32>> allPaths) 
+        {
+            if (dst != destination) return false;
+        
+            if (Best[src] != null) {
+                // BFS queue of paths
+                Queue<List<UInt32>> queue = new Queue<List<UInt32>>();
+                // Starting from the source
+                List<UInt32> pathFirst = new List<UInt32>();
+                pathFirst.Add(src);
+                queue.Enqueue(pathFirst);
+                while (queue.Count > 0) {
+                    List<UInt32> path = queue.Dequeue();
+                    UInt32 last = path.Last();
+                    if (last == dst) {
+                        // Saving a path
+                        allPaths.Add(path);
+                    }
+                    else if (path.Count < 20) {
+                        // Building more
+                        for (int i = 0; i < Best[last].Count; ++i) {
+                            List<UInt32> pathNew = new List<UInt32>();
+                            pathNew.AddRange(path);
+                            pathNew.Add(Best[last][i]);
+                            queue.Enqueue(pathNew);
+                        }
+                    }
+                }
+            }
+
+            return true;
+        }
+
         public bool GetAllPaths(UInt32 n, UInt32 dst, ref List<List<UInt32>> allPaths, List<UInt32> recvpath, ref TextWriter tw, ref int count)
         {
             if (dst != destination)
@@ -622,7 +655,6 @@ namespace SecureSimulator
                     UInt32 lastNum, destNum;
                     unjoin(asnode, out destNum, out rels);
                     unjoin(path[path.Count - 1], out lastNum, out rels);
-
                     if (destNum == dst)
                     {
                         //UInt32 end = join(dst, Destination._NOREL);
