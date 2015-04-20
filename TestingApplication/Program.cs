@@ -75,7 +75,7 @@ namespace TestingApplication
                         bytes = new byte[1000000];
                         int bytesRec = handler.Receive(bytes);
                         data += Encoding.ASCII.GetString(bytes,0,bytesRec);
-                        if (data.IndexOf("<EOF>") > -1) {
+                        if (data.IndexOf("<EOFc>") > -1) {
                             break;
                         }
                     }
@@ -88,16 +88,16 @@ namespace TestingApplication
                     int i;
                     for (i = 0; i < args.Length-1; ++i) {
                         if ("-q" == args[i]) break;
-                            if (dests.Contains(args[i])) continue;
-                            dests.Add(args[i]);
+                        if (dests.Contains(args[i])) continue;
+                        dests.Add(args[i]);
 
-                            Destination newD = new Destination();
-                            if (initDestination(ref g, ref newD, args[i]))
-                            {
-                                d.Add(args[i], newD);
-                                Console.WriteLine("Initialized and added " + newD.destination);
-                            }   
+                        Destination newD = new Destination();
+                        if (initDestination(ref g, ref newD, args[i]))
+                        {
+                            d.Add(args[i], newD);
+                            Console.WriteLine("Initialized and added " + newD.destination);
                         }   
+                    }   
 
                     Console.WriteLine("DESTS " + dests.Count);
 
@@ -106,7 +106,8 @@ namespace TestingApplication
                     StringBuilder res = new StringBuilder(1000000);
     
                     int k = 0;
-                    for (i = i+1; i < args.Length-2; i += 2) { 
+                    for (i = i+1; i < args.Length-1; i += 2) { 
+                        if ("<EOFc>" == args[i]) break;
                         Console.WriteLine(k);
                         string key = args[i] + "-" + args[i+1];
                         if (cache.ContainsKey(key)) {
@@ -114,18 +115,23 @@ namespace TestingApplication
                             k++;
                             continue;
                         }
-                        
-                        //int l = getPath(ref d, args[i], args[i+1]);
+                       
                         StringBuilder tmp = new StringBuilder();
+
+                        /*
+                        //int l = getPath(ref d, args[i], args[i+1]);
                         //getAllPathsOfLength(ref d, l, args[i], args[i+1], ref tmp);
                         getPath2(ref d, args[i], args[i+1], ref tmp);
+                        */
+
+                        getBestPaths(ref d, args[i], args[i+1], ref tmp);   
 
                         res.Append(tmp);
                         cache.Add(key, tmp.ToString());
                         k++;
                     }
 
-                    res.Append("<EOF>");
+                    res.Append("<EOFs>");
 
                     // Echo the data back to the client.
                     byte[] msg = Encoding.ASCII.GetBytes(res.ToString());
@@ -154,12 +160,55 @@ namespace TestingApplication
         // Second level of caching
         private static Dictionary<string, string> cache = new Dictionary<string, string>();
 
+        private static void cacheDestinations(string path)
+        {
+            System.IO.StreamReader file = new System.IO.StreamReader(path);
+            string line;
+            // whois bulk output format
+            file.ReadLine();
+            while((line = file.ReadLine()) != null) {
+                string[] tmp = line.Split(' ');
+                string asn = tmp[0];
+                if (dests.Contains(asn)) continue;
+                dests.Add(asn);
+                Destination newD = new Destination();
+                if (initDestination(ref g, ref newD, asn)) {
+                    d.Add(asn, newD);
+                    Console.WriteLine("Initialized and added " + newD.destination);
+                }
+            }
+            file.Close();
+            Console.WriteLine("CACHE: " + dests.Count);
+        }
+
+        private static void loadPrecomputation(string path)
+        {
+            System.IO.StreamReader file = new System.IO.StreamReader(path);
+            string line;
+            while((line = file.ReadLine()) != null) {
+                if ("<EOFs>" == line) break;
+                //Console.WriteLine(line);
+                string[] tmp = line.Replace(":", " ").Split(' ');
+                string src = tmp[2];
+                string dst = tmp[4];
+                string key = src + "-" + dst;
+                StringBuilder buf = new StringBuilder(line + "\n");
+                while ((line = file.ReadLine()) != null) {
+                    buf.Append(line + "\n");
+                    if ("-" == line) break;
+                }
+                cache.Add(key, buf.ToString());
+            }
+            file.Close();
+            Console.WriteLine("PRECOMP: " + cache.Count);
+        }
+
         static void Main(string[] args)
         {
 		if (args.Length == 0) {
                     Console.WriteLine("USAGE:");
 		    Console.WriteLine("mono TestingApplication.exe -bulk <input file> <dest1> ... <dstN> -q <src1> <dst1> ... <srcN> <dstN>");
-		    Console.WriteLine("mono TestingApplication.exe -server <input file>");
+		    Console.WriteLine("mono TestingApplication.exe -serverPORT <input file> <precomp file> <cache file>");
                     Console.WriteLine("mono TestingApplication.exe -cmd");
                     return;
 		}
@@ -249,8 +298,10 @@ namespace TestingApplication
 
                 if (args[0].StartsWith("-server")) {
 
-                    String port = args[0].Replace("-server", "");
+                    loadPrecomputation(args[2]);
+                    cacheDestinations(args[3]);
 
+                    String port = args[0].Replace("-server", "");
                     StartListening(port);
                 }
         }
@@ -287,6 +338,35 @@ namespace TestingApplication
 	    Console.WriteLine("Done initializing. Current active destination is: " + destNum);
             */
 	    return true;
+        }
+
+        private static void getBestPaths(ref Dictionary<string, Destination> ds, string src, string dst, ref StringBuilder res)
+        {
+            res.Append("ASes from " + src + " to " + dst + ":\n");
+            Console.WriteLine("ASes from " + src + " to " + dst);
+        
+            UInt32 dstNum;
+            UInt32 srcNum;
+            
+            if (ds.ContainsKey(dst)) {
+                Destination d = ds[dst];
+                if (UInt32.TryParse(src, out srcNum) && UInt32.TryParse(dst, out dstNum)) {
+                    List<List<UInt32>> allPaths = new List<List<UInt32>>();
+                    d.GetAllBestPaths(srcNum, dstNum, ref allPaths);
+                    HashSet<UInt32> asnSet = new HashSet<UInt32>();
+                    foreach (List<UInt32> path in allPaths) {
+                        for (int i = 0; i < path.Count; ++i) {
+                            asnSet.Add(path[i]);
+                        }
+                    }
+                    foreach (UInt32 asn in asnSet) {
+                        res.Append(asn + "\n");
+                    } 
+                }
+            }
+
+            res.Append("-\n");
+            return;
         }
 
 	private static int getPath(ref Dictionary<string, Destination> ds, string src, string dst)
