@@ -29,6 +29,8 @@ ASes from 15169 to 32490, length: 4
 209
 6461
 -
+
+mono TestingApplication/bin/Release/TestingApplication.exe -server11000 TestingApplication/bin/Release/Cyclops_caida_cons.txt precomp/US-precomp367.txt cache/exit_asns.txt
 */
 namespace TestingApplication
 {
@@ -198,6 +200,14 @@ namespace TestingApplication
                     if ("-" == line) break;
                 }
                 cache.Add(key, buf.ToString());
+                // + init the destination
+                if (dests.Contains(dst)) continue;
+                dests.Add(dst);
+                Destination newD = new Destination();
+                if (initDestination(ref g, ref newD, dst)) {
+                    d.Add(dst, newD);
+                    Console.WriteLine("Initialized and added " + newD.destination);
+                }
             }
             file.Close();
             Console.WriteLine("PRECOMP: " + cache.Count);
