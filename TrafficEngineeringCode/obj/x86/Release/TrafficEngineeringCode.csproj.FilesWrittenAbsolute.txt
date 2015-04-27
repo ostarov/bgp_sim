@@ -10,3 +10,9 @@
 /home/ostarov/torintercept/code/as-path-prediction/bgp_sim/TrafficEngineeringCode/obj/x86/Release/TrafficEngineeringCode.exe
 /home/ostarov/torintercept/code/as-path-prediction/bgp_sim/TrafficEngineeringCode/obj/x86/Release/TrafficEngineeringCode.exe.mdb
 /home/ostarov/torintercept/code/as-path-prediction/bgp_sim/TrafficEngineeringCode/bin/Release/SecureSimulator.dll
+/home/torintercept/bgp_sim/TrafficEngineeringCode/obj/x86/Release/.NETFramework,Version=v4.0,Profile=Client.AssemblyAttribute.cs
+/home/torintercept/bgp_sim/TrafficEngineeringCode/bin/Release/TrafficEngineeringCode.exe.mdb
+/home/torintercept/bgp_sim/TrafficEngineeringCode/bin/Release/TrafficEngineeringCode.exe
+/home/torintercept/bgp_sim/TrafficEngineeringCode/obj/x86/Release/TrafficEngineeringCode.exe
+/home/torintercept/bgp_sim/TrafficEngineeringCode/obj/x86/Release/TrafficEngineeringCode.exe.mdb
+/home/torintercept/bgp_sim/TrafficEngineeringCode/bin/Release/SecureSimulator.dll
