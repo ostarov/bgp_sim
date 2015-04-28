@@ -28,7 +28,7 @@ def processAlexa(x):
     #485
 
     ipis = []
-    with open('/home/ostarov/motivation/uniform/' + C + '-logs/' + C + '-exits-uniform.log', 'r') as fin:
+    with open('../../uniform/' + C + '-logs/' + C + '-exits-uniform.log', 'r') as fin:
         for line in fin.readlines():
             if not line.startswith("Dest"):
                 continue
@@ -77,8 +77,13 @@ def processAlexa(x):
 
 
 def main(argv):
-    countries = ["BR", "CN", "DE", "ES", "FR", "GB", "IR", "IT", "RU"]    
+    countries = ["IR", "IT", "RU"] 
+    #countries = ["BR", "CN", "DE", "ES", "FR", "GB", "IR", "IT", "RU"]    
+    
+    for c in countries:
+        processAlexa((11000, c))
 
+    '''
     bgps = []
     FNULL = open(os.devnull, 'w')
     for i in range(0, len(countries)):
@@ -100,7 +105,7 @@ def main(argv):
 
     for p in bgps:
         p.terminate()
-
+    '''
     
 if __name__ == "__main__":
     main(sys.argv)
