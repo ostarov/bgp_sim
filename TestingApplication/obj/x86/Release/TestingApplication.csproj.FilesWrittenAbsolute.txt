@@ -26,3 +26,12 @@
 /home/torintercept/bgp_sim/TestingApplication/bin/Release/SecureSimulator.dll
 /home/torintercept/bgp_sim/TestingApplication/bin/Release/Microsoft.WindowsAzure.StorageClient.dll
 /home/torintercept/bgp_sim/TestingApplication/bin/Release/Microsoft.WindowsAzure.StorageClient.xml
+/home/ostarov/motivation/bgp_sim/TestingApplication/obj/x86/Release/.NETFramework,Version=v4.0.AssemblyAttribute.cs
+/home/ostarov/motivation/bgp_sim/TestingApplication/bin/Release/TestingApplication.exe.mdb
+/home/ostarov/motivation/bgp_sim/TestingApplication/bin/Release/TestingApplication.exe
+/home/ostarov/motivation/bgp_sim/TestingApplication/obj/x86/Release/TestingApplication.exe
+/home/ostarov/motivation/bgp_sim/TestingApplication/obj/x86/Release/TestingApplication.exe.mdb
+/home/ostarov/motivation/bgp_sim/TestingApplication/bin/Release/CloudLibrary.dll
+/home/ostarov/motivation/bgp_sim/TestingApplication/bin/Release/SecureSimulator.dll
+/home/ostarov/motivation/bgp_sim/TestingApplication/bin/Release/Microsoft.WindowsAzure.StorageClient.dll
+/home/ostarov/motivation/bgp_sim/TestingApplication/bin/Release/Microsoft.WindowsAzure.StorageClient.xml

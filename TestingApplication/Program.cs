@@ -307,9 +307,11 @@ namespace TestingApplication
                 }
 
                 if (args[0].StartsWith("-server")) {
-
-                    loadPrecomputation(args[2]);
-                    cacheDestinations(args[3]);
+                    
+                    if (args.Length > 2) {
+                        loadPrecomputation(args[2]);
+                        cacheDestinations(args[3]);
+                    }
 
                     String port = args[0].Replace("-server", "");
                     StartListening(port);

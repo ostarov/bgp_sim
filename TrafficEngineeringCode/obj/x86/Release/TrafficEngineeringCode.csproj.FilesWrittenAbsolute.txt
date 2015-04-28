@@ -16,3 +16,9 @@
 /home/torintercept/bgp_sim/TrafficEngineeringCode/obj/x86/Release/TrafficEngineeringCode.exe
 /home/torintercept/bgp_sim/TrafficEngineeringCode/obj/x86/Release/TrafficEngineeringCode.exe.mdb
 /home/torintercept/bgp_sim/TrafficEngineeringCode/bin/Release/SecureSimulator.dll
+/home/ostarov/motivation/bgp_sim/TrafficEngineeringCode/obj/x86/Release/.NETFramework,Version=v4.0,Profile=Client.AssemblyAttribute.cs
+/home/ostarov/motivation/bgp_sim/TrafficEngineeringCode/bin/Release/TrafficEngineeringCode.exe.mdb
+/home/ostarov/motivation/bgp_sim/TrafficEngineeringCode/bin/Release/TrafficEngineeringCode.exe
+/home/ostarov/motivation/bgp_sim/TrafficEngineeringCode/obj/x86/Release/TrafficEngineeringCode.exe
+/home/ostarov/motivation/bgp_sim/TrafficEngineeringCode/obj/x86/Release/TrafficEngineeringCode.exe.mdb
+/home/ostarov/motivation/bgp_sim/TrafficEngineeringCode/bin/Release/SecureSimulator.dll

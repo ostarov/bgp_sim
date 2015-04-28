@@ -71,14 +71,14 @@ def countAttackers(src, ent, ext, dst, log):
 def main(argv):
     
     countries = ["US"];
-    #countries = ["BR", "CN", "DE", "ES", "FR", "GB", "IR", "IT", "RU"]
+    #countries = ["BR", "CN", "DE", "ES", "FR", "GB", "IR", "IT", "RU", "US"]
     for C in countries:
         summary = {}
         #sout = open("vanilla_motivation/vm-US-sum.txt", "w")
-        sout = open("vm-" + C + "-sum.txt", "w")
-        fout = open("vm-" + C + ".txt", "w")
-        log = open("vm-" + C + "-log.txt", "w")
-        with open('/home/torintercept/vanilla/'+ C + '-logs/' + C + '-circuits-vanilla.log', 'r') as fin:
+        sout = open("uniform_motivation/vm-" + C + "-sum.txt", "w")
+        fout = open("uniform_motivation/vm-" + C + ".txt", "w")
+        log = open("uniform_motivation/vm-" + C + "-log.txt", "w")
+        with open('/home/ostarov/motivation/uniform/'+ C + '-logs/' + C + '-circuits-uniform.log', 'r') as fin:
             website = None
             requests = 0
             attacked = 0
@@ -102,18 +102,16 @@ def main(argv):
                     print(tmp)
                     if len(tmp) == 9:
                         fout.write(tmp[1] + "\t" + tmp[3] + "\t" + tmp[5] + "\t" + tmp[7] + "\t")
-                        attackers = 0
-                        #attackers = countAttackers(tmp[1], tmp[3], tmp[5], tmp[7], log);
-                        #fout.write(str(attackers) + "\n");
+                        attackers = countAttackers(tmp[1], tmp[3], tmp[5], tmp[7], log);
+                        fout.write(str(attackers) + "\n");
                         fout.flush()
                         requests += 1
                         if attackers > 0:
                             attacked += 1
                         #break
-                    else: 
-                        break
         log.close()
         fout.close()
+        sout.close()
 
     
 if __name__ == "__main__":
