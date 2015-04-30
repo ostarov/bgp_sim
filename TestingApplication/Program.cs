@@ -199,7 +199,9 @@ namespace TestingApplication
                     buf.Append(line + "\n");
                     if ("-" == line) break;
                 }
-                cache.Add(key, buf.ToString());
+                if (!cache.ContainsKey(key)) {
+                    cache.Add(key, buf.ToString());
+                }
                 // + init the destination
                 if (dests.Contains(dst)) continue;
                 dests.Add(dst);
